@@ -992,9 +992,7 @@
   <div class="results-header">
     <div class="rh-deco"></div>
     <div>
-      <div class="brand-logo-wrap" id="r-logo-wrap">
-        <img id="r-logo-img" src="" alt="" onerror="this.parentElement.innerHTML='<span class=\'brand-logo-fallback\' id=\'r-logo-fallback\'></span>'" />
-      </div>
+      <div class="brand-logo-wrap" id="r-logo-wrap"></div>
       <div class="r-brand" id="r-brand"></div>
       <div class="r-tagline" id="r-tagline"></div>
     </div>
@@ -1262,14 +1260,19 @@
     $('r-tagline').textContent  = d.tagline ? `"${d.tagline}"` : '';
     $('r-overview').textContent = d.overview || '';
 
-    // Brand logo via Clearbit
-    const logoImg  = $('r-logo-img');
+    // Brand logo via Clearbit — built dynamically to avoid onerror-on-load issues
     const logoWrap = $('r-logo-wrap');
-    if (d.domain && logoImg) {
-      logoImg.src = `https://logo.clearbit.com/${d.domain}`;
-      logoImg.alt = d.brand || brand;
-    } else if (logoWrap) {
-      logoWrap.innerHTML = `<span class="brand-logo-fallback">${(d.brand || brand).charAt(0)}</span>`;
+    if (logoWrap) {
+      if (d.domain) {
+        const img = document.createElement('img');
+        img.alt = d.brand || brand;
+        img.onerror = () => { logoWrap.innerHTML = `<span class="brand-logo-fallback">${(d.brand || brand).charAt(0)}</span>`; };
+        logoWrap.innerHTML = '';
+        logoWrap.appendChild(img);
+        img.src = `https://logo.clearbit.com/${d.domain}`;
+      } else {
+        logoWrap.innerHTML = `<span class="brand-logo-fallback">${(d.brand || brand).charAt(0)}</span>`;
+      }
     }
 
     const ci = d.coreIdentity || {};
