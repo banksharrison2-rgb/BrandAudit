@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>BrandLens — AI Brand Audit Tool</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;1,9..40,300&display=swap" rel="stylesheet" />
+
+  <style>
+    :root {
+      --cream:      #F4EFE6;
+      --cream-lt:   #FAF7F2;
+      --cream-dk:   #E0D8CC;
+      --red:        #8C1C13;
+      --red-hover:  #A32117;
+      --blue:       #8A9BAD;
+      --blue-dk:    #647585;
+      --ink:        #1A1612;
+      --ink-mid:    #3A322B;
+      --ink-muted:  #7A6F65;
+      --white:      #FDFAF5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: var(--cream);
+      color: var(--ink);
+      font-family: 'DM Sans', sans-serif;
+      font-weight: 300;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--ink);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 48px; height: 60px;
+    }
+    .nav-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.25rem; color: var(--white);
+      letter-spacing: -0.01em; text-decoration: none;
+    }
+    .nav-logo em { font-style: italic; color: #C4352A; }
+    .nav-tag {
+      font-size: 0.65rem; font-weight: 500;
+      letter-spacing: 0.16em; text-transform: uppercase;
+      color: var(--blue);
+    }
+
+    /* HERO */
+    .hero {
+      padding: 100px 40px 80px;
+      max-width: 860px; margin: 0 auto; text-align: center;
+    }
+    .hero-eyebrow {
+      display: inline-block;
+      font-size: 0.65rem; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--red); border: 1px solid var(--red);
+      padding: 5px 16px; border-radius: 100px; margin-bottom: 28px;
+    }
+    .hero h1 {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(3rem, 7vw, 5rem);
+      line-height: 1.06; letter-spacing: -0.025em;
+      color: var(--ink); margin-bottom: 22px;
+    }
+    .hero h1 em { font-style: italic; color: var(--red); }
+    .hero-sub {
+      font-size: 1rem; line-height: 1.75;
+      color: var(--ink-muted); max-width: 500px;
+      margin: 0 auto 52px;
+    }
+
+    /* SEARCH */
+    .search-wrap {
+      display: flex; gap: 10px;
+      max-width: 580px; margin: 0 auto;
+    }
+    .search-input {
+      flex: 1; padding: 17px 22px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.95rem; font-weight: 400;
+      background: var(--white);
+      border: 1.5px solid var(--cream-dk);
+      border-radius: 4px; color: var(--ink);
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      box-shadow: 0 2px 10px rgba(26,22,18,0.07);
+    }
+    .search-input::placeholder { color: var(--ink-muted); }
+    .search-input:focus {
+      border-color: var(--red);
+      box-shadow: 0 2px 20px rgba(140,28,19,0.1);
+    }
+    .search-btn {
+      padding: 17px 30px;
+      background: var(--red); color: var(--white);
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.8rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      border: none; border-radius: 4px;
+      cursor: pointer; white-space: nowrap;
+      transition: background 0.2s, transform 0.1s;
+    }
+    .search-btn:hover { background: var(--red-hover); }
+    .search-btn:active { transform: scale(0.98); }
+    .search-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* MARQUEE */
+    .marquee-strip {
+      margin-top: 80px; background: var(--ink);
+      overflow: hidden; padding: 18px 0; white-space: nowrap;
+    }
+    .marquee-track {
+      display: inline-flex;
+      animation: marquee 30s linear infinite;
+    }
+    .marquee-track span {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.05rem; color: var(--blue);
+      letter-spacing: 0.04em; padding: 0 36px;
+    }
+    .marquee-track span.acc { color: #C4352A; font-style: italic; }
+    @keyframes marquee {
+      0% { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+
+    /* HOW IT WORKS */
+    .how-section {
+      max-width: 900px; margin: 96px auto 0; padding: 0 48px;
+    }
+    .section-eyebrow {
+      font-size: 0.65rem; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--ink-muted); margin-bottom: 40px;
+    }
+    .how-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      border-top: 1px solid var(--cream-dk);
+    }
+    .how-item {
+      padding: 32px 32px 32px 0;
+      border-bottom: 1px solid var(--cream-dk);
+    }
+    .how-item:not(:last-child) { border-right: 1px solid var(--cream-dk); }
+    .how-item:not(:first-child) { padding-left: 32px; padding-right: 0; }
+    .how-item:last-child { padding-right: 0; }
+    .how-num {
+      font-family: 'DM Serif Display', serif;
+      font-size: 2.8rem; color: var(--cream-dk);
+      line-height: 1; margin-bottom: 14px;
+    }
+    .how-title {
+      font-size: 0.75rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ink); margin-bottom: 8px;
+    }
+    .how-desc {
+      font-size: 0.88rem; line-height: 1.65;
+      color: var(--ink-muted);
+    }
+
+    /* LOADING */
+    #loading {
+      display: none; text-align: center; padding: 80px 40px;
+    }
+    .spinner {
+      width: 36px; height: 36px;
+      border: 2px solid var(--cream-dk);
+      border-top-color: var(--red);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 24px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-brand {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.9rem; color: var(--ink); margin-bottom: 8px;
+    }
+    .loading-sub {
+      font-size: 0.85rem; color: var(--ink-muted); letter-spacing: 0.03em;
+    }
+
+    /* ERROR */
+    #error-msg {
+      display: none; max-width: 500px;
+      margin: 32px auto; padding: 18px 24px;
+      background: rgba(140,28,19,0.06);
+      border: 1px solid rgba(140,28,19,0.2);
+      border-radius: 4px;
+      font-size: 0.88rem; color: var(--red); text-align: center;
+    }
+
+    /* RESULTS */
+    #results {
+      display: none;
+      max-width: 900px; margin: 0 auto;
+      padding: 80px 48px 120px;
+    }
+    .results-header {
+      display: flex; align-items: flex-end;
+      justify-content: space-between;
+      padding-bottom: 20px;
+      border-bottom: 1.5px solid var(--ink);
+      margin-bottom: 0;
+    }
+    .results-brand-name {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(2.6rem, 5vw, 4rem);
+      line-height: 1; letter-spacing: -0.025em;
+      color: var(--ink);
+    }
+    .results-tagline {
+      font-family: 'DM Serif Display', serif;
+      font-size: 0.9rem; font-style: italic;
+      color: var(--ink-muted); text-align: right;
+      max-width: 260px; padding-bottom: 4px;
+    }
+    .results-overview {
+      padding: 24px 0 48px;
+      font-size: 1rem; line-height: 1.8;
+      color: var(--ink-mid);
+      border-bottom: 1px solid var(--cream-dk);
+      max-width: 680px;
+    }
+
+    /* AUDIT SECTION */
+    .audit-section {
+      padding: 52px 0;
+      border-bottom: 1px solid var(--cream-dk);
+      display: grid;
+      grid-template-columns: 190px 1fr;
+      gap: 52px; align-items: start;
+    }
+    .audit-aside {
+      font-size: 0.65rem; font-weight: 500;
+      letter-spacing: 0.18em; text-transform: uppercase;
+      color: var(--ink-muted);
+      position: sticky; top: 76px;
+    }
+    .aside-num {
+      display: block;
+      font-family: 'DM Serif Display', serif;
+      font-size: 3.2rem; color: var(--cream-dk);
+      letter-spacing: -0.04em; line-height: 1;
+      margin-bottom: 8px;
+    }
+    .audit-section-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.75rem; letter-spacing: -0.01em;
+      color: var(--ink); margin-bottom: 28px;
+    }
+    .audit-section-title em { font-style: italic; color: var(--red); }
+
+    /* FEATURE LIST (Rae-style dividers) */
+    .feature-list { border-top: 1px solid var(--cream-dk); }
+    .feature-row {
+      display: flex; align-items: baseline;
+      gap: 20px; padding: 15px 0;
+      border-bottom: 1px solid var(--cream-dk);
+      font-size: 0.88rem; line-height: 1.65;
+      color: var(--ink-mid);
+    }
+    .feature-key {
+      font-size: 0.63rem; font-weight: 500;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      color: var(--ink-muted);
+      min-width: 130px; flex-shrink: 0;
+    }
+    .feature-val { flex: 1; }
+
+    /* TAGS */
+    .tag-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 3px; }
+    .tag {
+      font-size: 0.73rem; padding: 3px 11px;
+      border-radius: 100px; letter-spacing: 0.02em;
+    }
+    .tag-ink {
+      background: rgba(26,22,18,0.06);
+      color: var(--ink-mid);
+      border: 1px solid rgba(26,22,18,0.1);
+    }
+    .tag-red {
+      background: rgba(140,28,19,0.07);
+      color: var(--red);
+      border: 1px solid rgba(140,28,19,0.15);
+    }
+    .tag-blue {
+      background: rgba(138,155,173,0.1);
+      color: var(--blue-dk);
+      border: 1px solid rgba(138,155,173,0.22);
+    }
+
+    /* COMPETITORS */
+    .competitor-row {
+      display: flex; align-items: center;
+      gap: 12px; padding: 12px 0;
+      border-bottom: 1px solid var(--cream-dk);
+    }
+    .competitor-row:first-child { border-top: 1px solid var(--cream-dk); }
+    .comp-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%; background: var(--red); flex-shrink: 0;
+    }
+    .comp-name { font-size: 0.88rem; color: var(--ink-mid); }
+
+    /* WHITESPACE CARD */
+    .whitespace-card {
+      background: var(--ink); border-radius: 6px;
+      padding: 40px; margin-top: 4px;
+    }
+    .wc-label {
+      font-size: 0.62rem; font-weight: 500;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 10px;
+    }
+    .wc-text {
+      font-size: 0.9rem; line-height: 1.72;
+      color: rgba(253,250,245,0.75);
+    }
+    .wc-divider { height: 1px; background: rgba(255,255,255,0.08); margin: 28px 0; }
+    .wc-highlight {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1.35rem; line-height: 1.45;
+      color: var(--white); font-style: italic;
+      margin-top: 8px;
+    }
+
+    /* RESET BTN */
+    .reset-wrap { padding-top: 64px; text-align: center; }
+    .reset-btn {
+      display: inline-flex; align-items: center; gap: 8px;
+      padding: 14px 28px; background: transparent;
+      border: 1.5px solid var(--ink); border-radius: 4px;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--ink); cursor: pointer;
+      transition: background 0.2s, color 0.2s;
+    }
+    .reset-btn:hover { background: var(--ink); color: var(--white); }
+
+    /* FOOTER */
+    footer {
+      background: var(--ink); padding: 32px 48px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .footer-logo {
+      font-family: 'DM Serif Display', serif;
+      font-size: 1rem; color: var(--white);
+    }
+    .footer-logo em { font-style: italic; color: #C4352A; }
+    .footer-note {
+      font-size: 0.7rem; color: var(--blue); letter-spacing: 0.06em;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 680px) {
+      nav, .hero, .how-section, #results, footer { padding-left: 20px; padding-right: 20px; }
+      .how-grid { grid-template-columns: 1fr; }
+      .how-item { border-right: none !important; padding: 24px 0 !important; }
+      .audit-section { grid-template-columns: 1fr; gap: 12px; }
+      .aside-num { font-size: 2rem; display: inline; margin-right: 6px; }
+      .results-header { flex-direction: column; align-items: flex-start; gap: 6px; }
+      .results-tagline { text-align: left; }
+      .feature-key { min-width: 90px; }
+      footer { flex-direction: column; gap: 12px; text-align: center; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo" onclick="resetAudit(); return false;">Brand<em>Lens</em></a>
+  <span class="nav-tag">AI Brand Intelligence</span>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="heroSection">
+  <span class="hero-eyebrow">Powered by Claude AI</span>
+  <h1>Understand any brand<br><em>in seconds.</em></h1>
+  <p class="hero-sub">Enter a brand name and get a complete strategic audit — positioning, tone of voice, visual identity, and competitive whitespace.</p>
+  <div class="search-wrap">
+    <input type="text" class="search-input" id="brandInput"
+      placeholder="e.g. Nike, Glossier, Patagonia…" autocomplete="off" />
+    <button class="search-btn" id="auditBtn" onclick="runAudit()">Audit →</button>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-strip">
+  <div class="marquee-track">
+    <span>Core Identity</span><span class="acc">Verbal Identity</span>
+    <span>Visual Language</span><span class="acc">Market Positioning</span>
+    <span>Competitive Whitespace</span><span class="acc">Strategic Opportunity</span>
+    <span>Tone of Voice</span><span class="acc">Brand Audit</span>
+    <span>Core Identity</span><span class="acc">Verbal Identity</span>
+    <span>Visual Language</span><span class="acc">Market Positioning</span>
+    <span>Competitive Whitespace</span><span class="acc">Strategic Opportunity</span>
+    <span>Tone of Voice</span><span class="acc">Brand Audit</span>
+  </div>
+</div>
+
+<!-- HOW IT WORKS -->
+<section class="how-section" id="howSection">
+  <p class="section-eyebrow">How it works</p>
+  <div class="how-grid">
+    <div class="how-item">
+      <div class="how-num">01</div>
+      <div class="how-title">Enter a Brand</div>
+      <div class="how-desc">Type any brand name — from Fortune 500s to emerging DTC startups. No URL needed.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-num">02</div>
+      <div class="how-title">AI Researches</div>
+      <div class="how-desc">Claude searches the web in real time, analyzing positioning, messaging, and visual identity.</div>
+    </div>
+    <div class="how-item">
+      <div class="how-num">03</div>
+      <div class="how-title">Get the Audit</div>
+      <div class="how-desc">Receive a structured report across five strategic dimensions — including competitive whitespace.</div>
+    </div>
+  </div>
+</section>
+
+<!-- LOADING -->
+<div id="loading">
+  <div class="spinner"></div>
+  <div class="loading-brand" id="loadingBrand"></div>
+  <div class="loading-sub">Researching brand identity &amp; positioning…</div>
+</div>
+
+<!-- ERROR -->
+<div id="error-msg"></div>
+
+<!-- RESULTS -->
+<div id="results">
+
+  <div class="results-header">
+    <div class="results-brand-name" id="resBrandName"></div>
+    <div class="results-tagline" id="resTagline"></div>
+  </div>
+
+  <p class="results-overview" id="resOverview"></p>
+
+  <!-- 01 Core Identity -->
+  <div class="audit-section">
+    <div class="audit-aside">
+      <span class="aside-num">01</span>
+      Core Identity
+    </div>
+    <div>
+      <h2 class="audit-section-title">Who they <em>are</em></h2>
+      <div class="feature-list" id="coreList"></div>
+    </div>
+  </div>
+
+  <!-- 02 Verbal Identity -->
+  <div class="audit-section">
+    <div class="audit-aside">
+      <span class="aside-num">02</span>
+      Verbal Identity
+    </div>
+    <div>
+      <h2 class="audit-section-title">How they <em>speak</em></h2>
+      <div class="feature-list" id="verbalList"></div>
+    </div>
+  </div>
+
+  <!-- 03 Visual Identity -->
+  <div class="audit-section">
+    <div class="audit-aside">
+      <span class="aside-num">03</span>
+      Visual Identity
+    </div>
+    <div>
+      <h2 class="audit-section-title">How they <em>look</em></h2>
+      <div class="feature-list" id="visualList"></div>
+    </div>
+  </div>
+
+  <!-- 04 Market Positioning -->
+  <div class="audit-section">
+    <div class="audit-aside">
+      <span class="aside-num">04</span>
+      Market Positioning
+    </div>
+    <div>
+      <h2 class="audit-section-title">Where they <em>stand</em></h2>
+      <div class="feature-list" id="positionList"></div>
+    </div>
+  </div>
+
+  <!-- 05 Whitespace -->
+  <div class="audit-section">
+    <div class="audit-aside">
+      <span class="aside-num">05</span>
+      Whitespace
+    </div>
+    <div>
+      <h2 class="audit-section-title">The <em>opportunity</em></h2>
+      <div id="whitespaceCard"></div>
+    </div>
+  </div>
+
+  <div class="reset-wrap">
+    <button class="reset-btn" onclick="resetAudit()">← Run Another Audit</button>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo">Brand<em>Lens</em></div>
+  <div class="footer-note">Built with Claude AI · Cloudflare Workers</div>
+</footer>
+
+<script>
+  // ── CONFIG — update after deploying worker ──────────
+  const WORKER_URL = 'https://brand-audit-worker.YOUR_SUBDOMAIN.workers.dev';
+
+  // ── RENDER HELPERS ──────────────────────────────────
+  const row = (key, val) =>
+    `<div class="feature-row"><span class="feature-key">${key}</span><span class="feature-val">${val || '—'}</span></div>`;
+
+  const tagRow = (key, items, cls = 'tag-ink') => {
+    if (!items?.length) return '';
+    const tags = items.map(i => `<span class="tag ${cls}">${i}</span>`).join('');
+    return `<div class="feature-row"><span class="feature-key">${key}</span><span class="feature-val"><div class="tag-row">${tags}</div></span></div>`;
+  };
+
+  const compList = items =>
+    (items || []).map(c =>
+      `<div class="competitor-row"><div class="comp-dot"></div><div class="comp-name">${c}</div></div>`
+    ).join('');
+
+  // ── RENDER ──────────────────────────────────────────
+  function renderAudit(d) {
+    document.getElementById('resBrandName').textContent = d.brand || '';
+    document.getElementById('resTagline').textContent = d.tagline ? `"${d.tagline}"` : '';
+    document.getElementById('resOverview').textContent = d.overview || '';
+
+    const ci = d.coreIdentity || {};
+    document.getElementById('coreList').innerHTML =
+      row('Purpose', ci.purpose) +
+      row('Target Audience', ci.targetAudience) +
+      row('Value Proposition', ci.valueProposition) +
+      tagRow('Brand Values', ci.values);
+
+    const vi = d.verbalIdentity || {};
+    document.getElementById('verbalList').innerHTML =
+      row('Tone of Voice', vi.toneOfVoice) +
+      row('Language Style', vi.languageStyle) +
+      tagRow('Messaging Pillars', vi.messagingPillars);
+
+    const vs = d.visualIdentity || {};
+    document.getElementById('visualList').innerHTML =
+      row('Logo Style', vs.logoStyle) +
+      row('Color Palette', vs.colorPalette) +
+      row('Typography', vs.typography) +
+      row('Imagery Style', vs.imageryStyle) +
+      row('Overall Aesthetic', vs.overallAesthetic);
+
+    const mp = d.marketPositioning || {};
+    document.getElementById('positionList').innerHTML =
+      row('Positioning Statement', mp.positioningStatement) +
+      `<div class="feature-row"><span class="feature-key">Competitors</span><span class="feature-val">${compList(mp.topCompetitors)}</span></div>` +
+      `<div class="feature-row"><span class="feature-key">Strengths</span><span class="feature-val"><div class="tag-row">${(mp.competitiveStrengths||[]).map(s=>`<span class="tag tag-red">${s}</span>`).join('')}</div></span></div>` +
+      `<div class="feature-row"><span class="feature-key">Weaknesses</span><span class="feature-val"><div class="tag-row">${(mp.competitiveWeaknesses||[]).map(w=>`<span class="tag tag-blue">${w}</span>`).join('')}</div></span></div>`;
+
+    const ws = d.whitespace || {};
+    document.getElementById('whitespaceCard').innerHTML = `
+      <div class="whitespace-card">
+        <div class="wc-label">Gaps in the Market</div>
+        <div class="wc-text">${ws.gaps || '—'}</div>
+        <div class="wc-divider"></div>
+        <div class="wc-label">Opportunities</div>
+        <div class="wc-text">${ws.opportunities || '—'}</div>
+        <div class="wc-divider"></div>
+        <div class="wc-label">Strategic Recommendation</div>
+        <div class="wc-highlight">${ws.strategicRecommendation || '—'}</div>
+      </div>`;
+  }
+
+  // ── STATE MANAGEMENT ────────────────────────────────
+  function showLoading(brand) {
+    document.getElementById('heroSection').style.display = 'none';
+    document.getElementById('howSection').style.display = 'none';
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('loading').style.display = 'block';
+    document.getElementById('loadingBrand').textContent = brand;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showResults() {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('results').style.display = 'block';
+    document.getElementById('results').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function showError(msg) {
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('heroSection').style.display = 'block';
+    document.getElementById('howSection').style.display = 'block';
+    const el = document.getElementById('error-msg');
+    el.style.display = 'block';
+    el.textContent = msg || 'Something went wrong. Please try again.';
+  }
+
+  function resetAudit() {
+    document.getElementById('results').style.display = 'none';
+    document.getElementById('error-msg').style.display = 'none';
+    document.getElementById('loading').style.display = 'none';
+    document.getElementById('heroSection').style.display = 'block';
+    document.getElementById('howSection').style.display = 'block';
+    document.getElementById('brandInput').value = '';
+    document.getElementById('auditBtn').disabled = false;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  // ── MAIN ────────────────────────────────────────────
+  async function runAudit() {
+    const brand = document.getElementById('brandInput').value.trim();
+    if (!brand) { document.getElementById('brandInput').focus(); return; }
+
+    document.getElementById('auditBtn').disabled = true;
+    showLoading(brand);
+
+    try {
+      const res = await fetch(WORKER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ brand }),
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || `Request failed (${res.status})`);
+      }
+
+      const data = await res.json();
+      renderAudit(data);
+      showResults();
+    } catch (err) {
+      showError(err.message);
+    } finally {
+      document.getElementById('auditBtn').disabled = false;
+    }
+  }
+
+  document.getElementById('brandInput').addEventListener('keydown', e => {
+    if (e.key === 'Enter') runAudit();
+  });
+</script>
+</body>
+</html>
