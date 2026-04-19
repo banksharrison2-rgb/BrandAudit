@@ -1715,12 +1715,12 @@
 
     // ── Financial & Social
     const fin = d.financialSnapshot || {};
-    const badge = fin.publicOrPrivate === 'public'
+    const publicBadge = fin.publicOrPrivate === 'public'
       ? `<span class="campaign-platform" style="background:#E4EEE9;color:#2E6650">Public</span>`
       : `<span class="campaign-platform" style="background:#EDE6D6;color:#7A5C1E">Private</span>`;
     $('r-finance-grid').innerHTML = `
       <div class="finance-stat">
-        <div class="finance-stat-label">Revenue ${badge}</div>
+        <div class="finance-stat-label">Revenue ${publicBadge}</div>
         <div class="finance-stat-value">${fin.revenue || '—'}</div>
       </div>
       <div class="finance-stat">
