@@ -1777,7 +1777,10 @@
         body: JSON.stringify({ brand, files: uploadedFiles.length > 0 ? uploadedFiles : undefined }),
       });
 
-      if (!res.ok) throw new Error(`Request failed: ${res.status}`);
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.error || `Request failed: ${res.status}`);
+      }
       const d = await res.json();
       if (d.error) throw new Error(d.error);
 
